@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Docker version
         run: docker -v && docker-compose -v
-      - name: Clone symfony dev docker
+      - name: Clone magento2 dev docker
         uses: actions/checkout@v2
         with:
           repository: 'readymadehost/magento2-dev-docker'
@@ -33,7 +33,7 @@ jobs:
         continue-on-error: true
       # For docker smooth run
       - name: Setting server for docker smooth run
-        run: mkdir data && mkdir data/elasticsearch && chown -R 1000:1000 -R data/elasticsearch && sysctl -w vm.max_map_count=262144
+        run: mkdir data && mkdir data/elasticsearch && sudo chown -R 1000:1000 -R data/elasticsearch && sudo sysctl -w vm.max_map_count=262144
       # For projects .env.sample can be copied from project repo ie cp project/.env.docker.sample .env
       - name: Build dev docker
         run: cp project/magento2-dev-docker/.env .env && docker-compose build cli && docker-compose up -d cli
