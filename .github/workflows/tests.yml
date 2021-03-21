@@ -1,0 +1,54 @@
+name: tests
+
+on:
+  # Run on every push event to master
+  push:
+    branches:
+      - master
+      # branches-ignore:
+      # Skip bot branches
+      # - 'dependabot*'
+      # Skip development branch
+      # - '*-dev'
+  # Run on every pull request
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Docker version
+        run: docker -v && docker-compose -v
+      - name: Clone symfony dev docker
+        uses: actions/checkout@v2
+        with:
+          repository: 'readymadehost/magento2-dev-docker'
+      - name: Checkout project code
+        uses: actions/checkout@v2
+        with:
+          path: 'project'
+      # For docker build cache
+      - name: Magento2 dev docker build cache
+        uses: satackey/action-docker-layer-caching@v0.0.8
+        continue-on-error: true
+      # For docker smooth run
+      - name: Setting server for docker smooth run
+        run: mkdir data/elasticsearch && chown -R 1000:1000 -R data/elasticsearch && sysctl -w vm.max_map_count=262144
+      # For projects .env.sample can be copied from project repo ie cp project/.env.docker.sample .env
+      - name: Build dev docker
+        run: cp project/magento2-dev-docker/.env .env && docker-compose build cli && docker-compose up -d cli
+      - name: Installing project dependencies
+        run: docker-compose exec -T cli composer install --prefer-dist --no-progress --no-suggest
+      # If frontend dependencies exists for test to pass below might be needed
+      # - name: Installing and building frontend dependencies
+      #   run: docker-compose exec -T cli yarn install && docker-compose exec -T cli yarn build
+      - name: Installing fresh Magento2.4.x
+        run: docker-compose exec -T cli bin/magento setup:install --base-url=http://localhost:8080 --db-host=mariadb --db-name=project --db-user=root --db-password=root --backend-frontname=admin --admin-firstname=admin --admin-lastname=admin --admin-email=admin@admin.com --admin-user=admin --admin-password=admin@123 --language=en_US --currency=USD --timezone=America/Chicago --use-rewrites=1 --search-engine=elasticsearch7 --elasticsearch-host=elasticsearch --elasticsearch-port=920
+      - name: Copying test backup config
+        run: docker-compose exec -T cli cp magento2-dev-docker/install-config-mysql.php dev/tests/integration/etc/install-config-mysql.php
+      - name: Preparing test database
+        run: docker-compose exec -T mariadb mysql -u root -proot -e "CREATE DATABASE magento_integration_tests;"
+      - name: Cleaning cache and generated
+        run: docker-compose exec -T cli rm -rf generated/* && docker-compose exec -T cli bin/magento cache:clean
+      - name: Running magento2 tests
+        run: docker-compose exec -T cli bin/magento dev:tests:run
