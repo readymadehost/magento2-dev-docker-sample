@@ -12,4 +12,9 @@ class ExampleTest extends TestCase
     {
         $this->assertTrue(true, 'Always true case! :D');
     }
+
+    public function test_example_another_true_case()
+    {
+        $this->assertTrue(true, 'Always true case! :D');
+    }
 }
