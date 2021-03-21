@@ -42,7 +42,7 @@ jobs:
       - name: Making sure composer_home dir exists
         run: docker-compose exec -T cli mkdir /var/www/project/var/composer_home
       - name: Adding composer auth to cli container
-        run: docker cp $GITHUB_WORKSPACE/auth.json $(docker-compose ps -q cli):/var/www/project/var/composer_home/auth.json
+        run: docker cp $GITHUB_WORKSPACE/auth.json $(docker-compose ps -q cli):/var/www/project/auth.json
       - name: Installing project dependencies
         run: docker-compose exec -T cli composer install --prefer-dist --no-progress --no-suggest
       # If frontend dependencies exists for test to pass below might be needed
