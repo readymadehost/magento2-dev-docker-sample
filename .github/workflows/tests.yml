@@ -49,7 +49,7 @@ jobs:
       # - name: Installing and building frontend dependencies
       #   run: docker-compose exec -T cli yarn install && docker-compose exec -T cli yarn build
       - name: Installing fresh Magento2.4.x
-        run: docker-compose exec -T cli bin/magento setup:install --base-url=http://localhost:8080 --db-host=mariadb --db-name=project --db-user=root --db-password=root --backend-frontname=admin --admin-firstname=admin --admin-lastname=admin --admin-email=admin@admin.com --admin-user=admin --admin-password=admin@123 --language=en_US --currency=USD --timezone=America/Chicago --use-rewrites=1 --search-engine=elasticsearch7 --elasticsearch-host=elasticsearch --elasticsearch-port=920
+        run: docker-compose exec -T cli bin/magento setup:install --base-url=http://localhost:8080 --db-host=mariadb --db-name=project --db-user=root --db-password=root --backend-frontname=admin --admin-firstname=admin --admin-lastname=admin --admin-email=admin@admin.com --admin-user=admin --admin-password=admin@123 --language=en_US --currency=USD --timezone=America/Chicago --use-rewrites=1 --search-engine=elasticsearch7 --elasticsearch-host=elasticsearch --elasticsearch-port=9200
       - name: Copying test backup config
         run: docker-compose exec -T cli cp magento2-dev-docker/install-config-mysql.php dev/tests/integration/etc/install-config-mysql.php
       - name: Preparing test database
